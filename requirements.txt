@@ -1,0 +1,7 @@
+jupyter
+theano
+matplotlib
+cairocffi
+pep8
+autopep8
+neovim
