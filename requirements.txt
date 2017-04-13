@@ -5,3 +5,6 @@ cairocffi
 pep8
 autopep8
 neovim
+Image
+Pillow
+ipdb
