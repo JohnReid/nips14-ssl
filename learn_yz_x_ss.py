@@ -7,7 +7,7 @@ import scipy.stats
 import anglepy.paramgraphics as paramgraphics
 import anglepy.ndict as ndict
 
-from anglepy.sfo import SFO
+# from anglepy.sfo import SFO
 from adam import AdaM
 
 import theano
@@ -191,6 +191,9 @@ def main(n_passes, n_labeled, n_z, n_hidden, dataset, seed, alpha, n_minibatches
 
         return valid_error
 
+    # Break here
+    import ipdb; ipdb.set_trace()
+
     # Optimize
     result = optim_vae_ss_adam(alpha, model_qy, model, x_labeled, x_unlabeled,
                                n_y, u, v, w, n_minibatches=n_minibatches, n_passes=n_passes, hook=hook)
@@ -198,7 +201,10 @@ def main(n_passes, n_labeled, n_z, n_hidden, dataset, seed, alpha, n_minibatches
     return result
 
 
-def optim_vae_ss_adam(alpha, model_qy, model, x_labeled, x_unlabeled, n_y, u_init, v_init, w_init, n_minibatches, n_passes, hook, n_reset=20, resample_keepmem=False, display=0):
+def optim_vae_ss_adam(
+    alpha, model_qy, model, x_labeled, x_unlabeled, n_y, u_init, v_init, w_init,
+    n_minibatches, n_passes, hook,
+    n_reset=20, resample_keepmem=False, display=0):
 
     # Shuffle datasets
     ndict.shuffleCols(x_labeled)
@@ -207,13 +213,19 @@ def optim_vae_ss_adam(alpha, model_qy, model, x_labeled, x_unlabeled, n_y, u_ini
     # create minibatches
     minibatches = []
 
+    # Number of labelled examples in mini-batch is total
+    # number of labelled examples divided by number of mini-batches
     n_labeled = x_labeled.itervalues().next().shape[1]
     n_batch_l = n_labeled / n_minibatches
+    # Check that number of examples is multiple of batch size
     if (n_labeled % n_batch_l) != 0:
         raise Exception()
 
+    # Number of unlabelled examples in mini-batch is total
+    # number of unlabelled examples divided by number of mini-batches
     n_unlabeled = x_unlabeled.itervalues().next().shape[1]
     n_batch_u = n_unlabeled / n_minibatches
+    # Check that number of examples is multiple of batch size
     if (n_unlabeled % n_batch_u) != 0:
         raise Exception()
 
@@ -268,6 +280,7 @@ def optim_vae_ss_adam(alpha, model_qy, model, x_labeled, x_unlabeled, n_y, u_ini
 
         # Reweight gu_labeled and logqy
         # beta = alpha / (1.-alpha) * (1. * n_unlabeled / n_labeled) #old
+        # division by n_labeled presumably because logqy is summed over all labelled data
         beta = alpha * (1. * n_tot / n_labeled)
         for i in u:
             gu_labeled[i] *= beta
