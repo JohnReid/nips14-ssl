@@ -16,7 +16,10 @@ Variational AE (VAE) with P(Z)P(Y)P(X|Y,Z)
 
 class VAE_YZ_X(ap.VAEModel):
 
-    def __init__(self, n_x, n_y, n_hidden_q, n_z, n_hidden_p, nonlinear_q='tanh', nonlinear_p='tanh', type_px='bernoulli', type_qz='gaussianmarg', type_pz='gaussianmarg', prior_sd=1, uniform_y=False):
+    def __init__(self, n_x, n_y, n_hidden_q, n_z, n_hidden_p,
+                 nonlinear_q='tanh', nonlinear_p='tanh',
+                 type_px='bernoulli', type_qz='gaussianmarg',
+                 type_pz='gaussianmarg', prior_sd=1, uniform_y=False):
         self.constr = (__name__, inspect.stack()[0][3], locals())
         self.n_x = n_x
         self.n_y = n_y
@@ -36,10 +39,10 @@ class VAE_YZ_X(ap.VAEModel):
         '''
         z['eps'] is the independent epsilons (Gaussian with unit variance)
         x['x'] is the data
-        x['y'] is categorial data (1-of-K coded)
+        x['y'] is categorical data (1-of-K coded)
 
         The names of list z[...] may be confusing here: the latent variable z is not included in the list z[...],
-        but implicitely computed from epsilon and parameters in w.
+        but implicitly computed from epsilon and parameters in w.
 
         z is computed with g(.) from eps and variational parameters
         let logpx be the generative model density: log p(y) + log p(x|y,z) where z=g(.)

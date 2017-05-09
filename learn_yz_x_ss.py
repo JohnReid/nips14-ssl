@@ -62,16 +62,26 @@ def main(n_passes, n_labeled, n_z, n_hidden, dataset, seed, alpha, n_minibatches
 
         # Extract features
 
-        # 1. Determine which dimensions to keep
+        # 1. Choose dimensions to keep
+        #
+        # It looks like we map the data into the latent space and analyse the distribution
+        # in each dimension. We keep the dimensions where the standard deviation of the q(z)'s mean
+        # across the data is greater than 0.1.
+        #
+        # In practice, this leaves us 19 / 50 dimensions.
+        #
         def transform(v, _x):
             return l1_model.dist_qz['z'](*([_x] + v.values() + [np.ones((1, _x.shape[1]))]))
-        q_mean, _ = transform(l1_v, x_u[0:1000])
-        idx_keep = np.std(q_mean, axis=1) > 0.1
+        # [0:1000] looks redundant here, first dimension of x_u is 784 pixels
+        q_mean, q_logvar = transform(l1_v, x_u[0:1000])
+        mean_sds = np.std(q_mean, axis=1)
+        avg_vars = np.exp(np.mean(q_logvar, axis=1))
+        idx_keep = mean_sds > 0.1
 
         # 2. Select dimensions
         for key in ['mean_b', 'mean_w', 'logvar_b', 'logvar_w']:
             l1_v[key] = l1_v[key][idx_keep, :]
-        l1_w['w0'] = l1_w['w0'][:, idx_keep]
+        l1_w['w0'] = l1_w['w0'][:, idx_keep]  # seems redundant, l1_w unused elsewhere
 
         # 3. Extract features
         x_mean_u, x_logvar_u = transform(l1_v, x_u)
@@ -90,6 +100,10 @@ def main(n_passes, n_labeled, n_z, n_hidden, dataset, seed, alpha, n_minibatches
         nonlinear = 'softplus'
 
         colorImg = False
+
+        # from IPython.core.debugger import Tracer
+        # Tracer()() #this one triggers the debugger
+        # import ipdb; ipdb.set_trace()
 
     if dataset == 'svhn_2layer':
 
@@ -192,7 +206,7 @@ def main(n_passes, n_labeled, n_z, n_hidden, dataset, seed, alpha, n_minibatches
         return valid_error
 
     # Break here
-    import ipdb; ipdb.set_trace()
+    # import ipdb; ipdb.set_trace()
 
     # Optimize
     result = optim_vae_ss_adam(alpha, model_qy, model, x_labeled, x_unlabeled,
