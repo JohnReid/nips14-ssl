@@ -206,7 +206,7 @@ def main(n_passes, n_labeled, n_z, n_hidden, dataset, seed, alpha, n_minibatches
         return valid_error
 
     # Break here
-    # import ipdb; ipdb.set_trace()
+    import ipdb; ipdb.set_trace()
 
     # Optimize
     result = optim_vae_ss_adam(alpha, model_qy, model, x_labeled, x_unlabeled,
@@ -369,6 +369,9 @@ def optim_vae_ss_adam(
 
     optimizer = AdaM(f_df, w_init, minibatches,
                      alpha=3e-4, beta1=0.9, beta2=0.999)
+
+    # JR
+    import ipdb; ipdb.set_trace()
 
     for i in range(n_passes):
         w = optimizer.optimize(num_passes=1)
